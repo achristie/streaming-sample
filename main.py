@@ -1,16 +1,27 @@
 import argparse
-import ws_client
+import ewmd
 import asyncio
 import json
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s %(message)s",
+    filename="log.log",
+    encoding="utf-8",
+    level=logging.INFO,
+)
 
 
 def handle_msg(msg):
-    print(json.loads(msg))
+    j = json.loads(msg)
+    if j["action"] == "heartbeat":
+        return
+    elif j["action"] == "subscribe":
+        logging.info(j)
 
 
 def main():
-    # client = ws_client.WSClient()
-    client = ws_client.WSClient(**vars(args), callback=handle_msg)
+    client = ewmd.WSClient(**vars(args), callback=handle_msg)
     asyncio.run(client.connect())
 
 

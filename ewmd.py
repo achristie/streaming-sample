@@ -1,6 +1,7 @@
 import websockets
 import get_token
 import asyncio
+import logging
 
 
 subscription_msg = """
@@ -20,15 +21,7 @@ subscription_msg = """
 
 
 class WSClient:
-    def __init__(
-        self,
-        username,
-        password,
-        apikey,
-        markets,
-        callback=lambda x: print("test"),
-    ):
-        print(markets)
+    def __init__(self, username, password, apikey, markets, callback):
         self.un = username
         self.pw = password
         self.apikey = apikey
@@ -61,13 +54,13 @@ class WSClient:
             ping_interval=None,
         ):
             try:
+                logging.info("test")
                 for m in self.markets:
                     await ws.send(self.create_subscription_msg(m))
                 async for msg in ws:
                     self.callback(msg)
             except websockets.ConnectionClosed as err:
-                print("Error: ", err)
-                print("Reconnecting in 3 seconds")
+                logging.info("Disconnected! Reconnecting in 3 seconds", err)
                 await asyncio.sleep(3)
                 token = get_token.get_token(self.un, self.pw, self.apikey)
                 headers = [("Authorization", f"Bearer {token}")]
