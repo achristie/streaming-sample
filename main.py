@@ -23,7 +23,8 @@ def handle_msg(msg):
 
 def main():
     db = botes_store.Db()
-    db.create_table()
+    with db as db:
+        db.create_table()
     client = ewmd.WSClient(**vars(args), callback=handle_msg)
     asyncio.run(client.connect())
 
