@@ -4,46 +4,13 @@ import asyncio
 import logging
 
 
-subscription_msg = """
-        {
-            "action": "subscribe",
-            "dataType": "BOTES",
-            "criteria": {
-              "$and": [
-                {
-                "key": "Market",
-                "operator": "$eq",
-                "values": ["EU BFOE"]}
-              ]
-            }
-        }
-    """
-
-
 class WSClient:
-    def __init__(self, username, password, apikey, markets, callback):
+    def __init__(self, username, password, apikey, subscription_msgs, callback):
         self.un = username
         self.pw = password
         self.apikey = apikey
-        self.markets = markets
+        self.subscription_msgs = subscription_msgs
         self.callback = callback
-
-    @staticmethod
-    def create_subscription_msg(market):
-        return f"""
-        {{
-            "action": "subscribe",
-            "dataType": "BOTES",
-            "criteria": {{
-              "$and": [
-                {{
-                "key": "Market",
-                "operator": "$eq",
-                "values": ["{market}"]}}
-              ]
-            }}
-        }}
-    """
 
     @staticmethod
     def get_token(username, password, apikey):
@@ -77,8 +44,8 @@ class WSClient:
         ):
             try:
                 print("Connected. Check log file for details.")
-                for m in self.markets:
-                    await ws.send(self.create_subscription_msg(m))
+                for m in self.subscription_msgs:
+                    await ws.send(m)
                 async for msg in ws:
                     self.callback(msg)
             except websockets.ConnectionClosed as err:

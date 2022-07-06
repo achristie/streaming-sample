@@ -1,9 +1,9 @@
 import argparse
-import ewmd
+import ws
 import asyncio
 import json
 import logging
-import botes_store
+import ewmd_store
 
 logging.basicConfig(
     format="%(asctime)s %(message)s",
@@ -13,19 +13,39 @@ logging.basicConfig(
 )
 
 
-def handle_msg(msg):
-    j = json.loads(msg)
-    if j["action"] == "heartbeat":
-        return
-    elif j["action"] == "subscribe":
+def create_subscription_msg(market):
+    return f"""
+    {{
+        "action": "subscribe",
+        "dataType": "BOTES",
+        "criteria": {{
+          "$and": [
+            {{
+            "key": "Market",
+            "operator": "$eq",
+            "values": ["{market}"]}}
+          ]
+        }}
+    }}
+"""
+
+
+def handle_msg(db):
+    def f(msg):
+        j = json.loads(msg)
         logging.info(j)
+        db.insert(j)
+
+    return f
 
 
 def main():
-    db = botes_store.Db()
-    with db as db:
-        db.create_table()
-    client = ewmd.WSClient(**vars(args), callback=handle_msg)
+    db = ewmd_store.Db()
+    sm = [create_subscription_msg(m.strip()) for m in args.markets]
+    db.create_table()
+    client = ws.WSClient(
+        args.username, args.password, args.apikey, sm, callback=handle_msg(db)
+    )
     asyncio.run(client.connect())
 
 
