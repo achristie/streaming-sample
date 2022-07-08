@@ -7,14 +7,14 @@ This example shows how to connect to the Platts eWindow Market Data Streaming AP
 | Parameter      | Description                                                                                     |
 | :------------- | :---------------------------------------------------------------------------------------------- |
 | -a, --apikey   | Your eWindow API Key. **Required**                                                              |
-| -u, --username | Your Platts Username **Required**                                                               |
+| -u, --username | Your Platts Username. **Required**                                                              |
 | -p, --password | Your Platts Password. **Required**                                                              |
 | -m, --markets  | The markets you wish to subscribe to. Comma-delimited string: `"EU BFOE, EU MTBE"` **Required** |
 
 ### Getting Started
 
 ```python
-pip install
+pip install asyncio requests websockets
 python main.py -a {APIKEY} -u {USERNAME} -p {PASSWORD} -m "EU BFOE, EU MTBE"
 ```
 
