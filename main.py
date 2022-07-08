@@ -33,8 +33,9 @@ def create_subscription_msg(market):
 def handle_msg(db):
     def f(msg):
         j = json.loads(msg)
+        if j["action"] == "data":
+            db.insert(j["message"])
         logging.info(j)
-        db.insert(j)
 
     return f
 
